@@ -1,0 +1,2 @@
+# opcv-string-obj
+seacret
