@@ -119,48 +119,6 @@ def convert_from_cls_format(cls_boxes, cls_segms, cls_keyps):
         classes += [j] * len(cls_boxes[j])
     return boxes, segms, keyps, classes
 
-def compare_feature(target_img_path, img_dir):
-    target_img = cv2.imread(target_img_path, cv2.IMREAD_GRAYSCALE)
-    IMG_SIZE = target_img.shape
-    # target_img = cv2.resize(target_img, IMG_SIZE)
-
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-    detector = cv2.ORB_create()
-    # detector = cv2.AKAZE_create()
-    (target_kp, target_des) = detector.detectAndCompute(target_img, None)
-
-    files = [f for f in os.listdir(img_dir) if re.match(r'.*\.jpg', f)]
-    for file in files:
-        comparing_img_path = img_dir + file
-        try:
-            comparing_img = cv2.imread(comparing_img_path, cv2.IMREAD_GRAYSCALE)
-            comparing_img = cv2.resize(comparing_img, IMG_SIZE)
-            (comparing_kp, comparing_des) = detector.detectAndCompute(comparing_img, None)
-            matches = bf.match(target_des, comparing_des)
-            dist = [m.distance for m in matches]
-            ret = sum(dist) / len(dist)
-        except cv2.error:
-            ret = 100000
-
-        print(file, ret)
-
-def compare_hist(target_img_path, img_dir):
-    target_img = cv2.imread(target_img_path)
-    IMG_SIZE = target_img.shape
-    # target_img = cv2.resize(target_img, IMG_SIZE)
-    target_hist = cv2.calcHist([target_img], [0], None, [256], [0, 256])
-
-    files = [f for f in os.listdir('.') if re.match(r'.*\.jpg', f)]
-    for file in files:
-        comparing_img_path = img_dir + file
-        comparing_img = cv2.imread(comparing_img_path)
-        comparing_img = cv2.resize(comparing_img, IMG_SIZE)
-        comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
-
-        ret = cv2.compareHist(target_hist, comparing_hist, 0)
-        print(file, ret)
-    
-
 def main(args):
     logger = logging.getLogger(__name__)
     merge_cfg_from_file(args.cfg)
@@ -238,14 +196,6 @@ def main(args):
                 )
                 cv2.imwrite(classout_name, im[r[1]:r[1]+r[3], r[0]:r[0]+r[2]])
                 # logger.info(c.reshape((-1, 2)))
-
-    # enumerate extracted objects
-    im_list = glob.iglob(os.path.join(args.output_dir, "car") + '/*.jpg')
-    # for each object
-    for i, im_name in enumerate(im_list):
-        logger.info(im_name)
-        # search for that image in target folder
-        compare_feature(im_name, args.im_or_folder)
 
 if __name__ == '__main__':
     workspace.GlobalInit(['caffe2', '--caffe2_log_level=0'])

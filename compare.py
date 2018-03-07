@@ -1,11 +1,9 @@
 #!/usr/bin/env python2
 
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import defaultdict
 import argparse
 import cv2  # NOQA (Must import before importing caffe2 due to bug in cv2)
 import glob
@@ -17,19 +15,12 @@ import time
 import errno
 import numpy as np
 
-
-# OpenCL may be enabled by default in OpenCV3; disable it because it's not
-# thread safe and causes unwanted GPU memory allocations.
-cv2.ocl.setUseOpenCL(False)
-
-# help(cv2.xfeatures2d)
-
 def parse_args():
     parser = argparse.ArgumentParser(description='End-to-end inference')
     parser.add_argument(
         '--output-dir',
         dest='output_dir',
-        help='directory for visualization pdfs (default: /tmp/infer_simple)',
+        help='directory for visualization pdfs (default: output)',
         default='output',
         type=str
     )
@@ -41,14 +32,14 @@ def parse_args():
         type=str
     )
     parser.add_argument(
-        'im_or_folder', help='image or folder of images', default=None
+        'folder', help='folder of images', default=None
     )
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
     return parser.parse_args()
 
-def compare_feature(target_img_path, img_dir):
+def compare(target_img_path, img_dir):
     target_img = cv2.imread(target_img_path, cv2.IMREAD_GRAYSCALE)
     target_img_color = cv2.imread(target_img_path)
 
@@ -161,12 +152,12 @@ def compare_feature(target_img_path, img_dir):
 def main(args):
     logger = logging.getLogger(__name__)
     # enumerate extracted objects
-    im_list = glob.iglob(os.path.join(args.output_dir, "car") + '/*.jpg')
+    im_list = glob.iglob(os.path.join(args.folder, args.output_dir, "car") + '/*.jpg')
     # for each object
     for i, im_name in enumerate(im_list):
         logger.info(im_name)
         # search for that image in target folder
-        compare_feature(im_name, args.im_or_folder)
+        compare(im_name, args.folder)
 
 if __name__ == '__main__':
     FORMAT = '%(levelname)s %(filename)s:%(lineno)4d: %(message)s'
