@@ -144,7 +144,7 @@ def compare(target_img_path, img_dir):
         # print(file, " ", "\tORB:", ret_o, "\tAKAE:", ret_a, "\tSIFT:", siftres, "\tSURF:", surfres, "\tFLANN:", flannres, "\tHIST:", hist)
         print(file, " ", "\tSIFT:", flannres, "\tHIST:", hist)
         # check thresholds
-        if flannres > 70 or (hist >= 0.7):
+        if flannres > 70 or (flannres > 20 and hist >= 0.6):
             found_in.append(file)
     # print result
     print(os.path.basename(target_img_path), "found in:", found_in)
