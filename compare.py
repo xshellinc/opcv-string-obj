@@ -152,7 +152,7 @@ def compare(target_img_path, img_dir):
 def main(args):
     logger = logging.getLogger(__name__)
     # enumerate extracted objects
-    im_list = glob.iglob(os.path.join(args.folder, args.output_dir, "car") + '/*.jpg')
+    im_list = glob.iglob(os.path.join(args.output_dir, "car") + '/*.jpg')
     # for each object
     for i, im_name in enumerate(im_list):
         logger.info(im_name)
